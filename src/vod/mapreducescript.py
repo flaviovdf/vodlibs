@@ -170,30 +170,33 @@ class Runner(object):
                                 help='Number or parallel processors')
             parser.add_argument('--profile',  action='store_true', 
                                 help='Profile the execution?')
-                        
+            parser.add_argument('--chunk_size', type=int, 
+                                help='Overwrite default chunk size (100)')
+                                    
             self.add_custom_aguments(parser)
             arg_vals = parser.parse_args(args)
             self.setup(arg_vals)
             
             num_procs = arg_vals.num_procs
+            chunk_size = arg_vals.chunk_size
             if arg_vals.profile: #will profile and summarize using pstats
                 print('saving profiler output to: .run_profile.prof',
                       file = sys.stderr)
                 
-                profile.runctx('self._go(num_procs)', 
+                profile.runctx('self._go(num_procs, chunk_size)', 
                                globals(), locals(), '.run_profile.prof')
                 
                 stats = pstats.Stats('.run_profile.prof').\
                         strip_dirs().sort_stats('time')
                 stats.print_stats()
             else: #normal execution
-                self._go(num_procs)
+                self._go(num_procs, chunk_size)
             
         except Exception:
             parser.print_help(file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
     
-    def _go(self, num_procs):
+    def _go(self, num_procs, chunk_size = None):
         '''
         This is the equivalent of the main method. It will 
         create the processes and the pipeline between item generators -> 
@@ -220,7 +223,7 @@ class Runner(object):
                 
                 pool = Pool(num_procs)
                 results = pool.map(_processor_helper, 
-                                   igen_helper(), 100)
+                                   igen_helper(), chunk_size)
                 
                 for key, value in results:
                     reducer(key, value)

@@ -28,6 +28,23 @@ class RunnerTest(unittest.TestCase):
                     
         self.assertEquals(r1.result_store, r2.result_store)
 
+    def testAllChunkSize(self):
+        r1 = BasicRunner()
+        r1(['100', '--chunk_size', '2'])
+        self.assertEquals(100, len(r1.result_store))
+        
+        for k, v in r1.result_store.items():
+            self.assertEquals(k, v - 1)
+            
+        r2 = BasicRunner()
+        r2(['1'])
+        self.assertEquals(100, len(r2.result_store))
+            
+        for k, v in r2.result_store.items():
+            self.assertEquals(k, v - 1)
+                    
+        self.assertEquals(r1.result_store, r2.result_store)
+
 class Processor(BaseMapper):
     
     def _map(self, key, item):
