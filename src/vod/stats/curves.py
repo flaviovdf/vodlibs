@@ -5,7 +5,7 @@ Various statistical functions used by other parts of the code.
 
 from __future__ import division, print_function
 
-from collections import Counter
+from collections import defaultdict
 from scipy.stats import mstats
 
 import numpy as np
@@ -68,7 +68,9 @@ def categorical_hist(data):
     Two other arrays corresponding to the categories and y values.
     '''
     
-    counter = Counter(data)
+    counter = defaultdict(int)
+    for point in data:
+        counter[point] += 1
     
     x = np.array(counter.keys())
     y = np.array(counter.values())

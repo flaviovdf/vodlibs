@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 '''
-Simple module which creates a pool of processes to work
-on items retrieved by an iterator.
+Simple module which creates a pool of processes to work on items retrieved 
+by an iterator.
 '''
 from __future__ import division, print_function
 
@@ -34,6 +34,25 @@ class BaseMapper(object):
     def __call__(self, key, item):
         return self._map(key, item)
 
+class BaseReducer(object):
+    '''This class can be used to
+       safely create Reducers'''
+
+    __metaclass__ = ABCMeta
+    
+    @abstractmethod
+    def _reduce(self, key, value):
+        '''
+        This method is wrapped by the __call__
+        method. It should perform some operations
+        on the item and return the tuple: value.
+        The value represents the result of the operation.
+        '''
+        pass
+    
+    def __call__(self, key, item):
+        return self._reduce(key, item)
+
 class Runner(object):
     '''
     This class can be used to create programs which work
@@ -47,6 +66,16 @@ class Runner(object):
        * num_procs : The number of processes to use
        * --profile (optional) : If execution should be profiled
     Other arguments are defined by inheritance.
+    
+    The code runs as follows:
+        1. creates a argparse with default arguments
+        2. adds custom arguments with the `add_custom_aguments`
+           method. This is inherited by subclasses.
+        3. Passes the command line arguments (or any array) to
+           the parser
+        4. Calls `setup`. Again, inherited.
+        5. Performs map reduce operation
+        6. Call's `finalize`
     '''
     __metaclass__ = ABCMeta
     
@@ -107,14 +136,6 @@ class Runner(object):
         
         parser.add_argument('in_dir',  type=str, 
                             help='The directory with input files')
-        
-        The code runs as follows:
-        1. creates a argparse with default arguments
-        2. adds custom arguments with the `add_custom_aguments`
-           method
-        3. Passes the command line arguments (or any array) to
-           the parser
-        4. Calls `setup`
         '''
         pass
 
@@ -128,14 +149,13 @@ class Runner(object):
         supplied in the command line. For example:
         
         self.in_dir = arg_vals.in_dir
-        
-        The code runs as follows:
-        1. creates a argparse with default arguments
-        2. adds custom arguments with the `add_custom_aguments`
-           method
-        3. Passes the command line arguments (or any array) to
-           the parser
-        4. Calls `setup`
+        '''
+        pass
+
+    def finalize(self):
+        '''
+        Inherit this method to close files or terminate objects
+        after the mapreduce operation.
         '''
         pass
 
@@ -168,7 +188,7 @@ class Runner(object):
                 stats.print_stats()
             else: #normal execution
                 self._go(num_procs)
-                
+            
         except Exception:
             parser.print_help(file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
@@ -199,8 +219,8 @@ class Runner(object):
                         yield (mapper, key, item)
                 
                 pool = Pool(num_procs)
-                results = pool.imap(_processor_helper, 
-                                    igen_helper(), 100)
+                results = pool.map(_processor_helper, 
+                                   igen_helper(), 100)
                 
                 for key, value in results:
                     reducer(key, value)
@@ -211,7 +231,8 @@ class Runner(object):
                 for key, item in igen:
                     value = mapper(key, item)
                     reducer(key, value)
-            
+                    
+            self.finalize()
             print('Done.', file = sys.stderr)
         finally:
             if pool:
@@ -220,5 +241,5 @@ class Runner(object):
 
 def _processor_helper(tup):
     '''Helper for the use of multiprocessing'''
-    processor, key, item = tup
-    return key, processor(key, item)
+    mapper, key, item = tup
+    return key, mapper(key, item)
