@@ -222,8 +222,13 @@ class Runner(object):
                         yield (mapper, key, item)
                 
                 pool = Pool(num_procs)
-                results = pool.map(_processor_helper, 
-                                   igen_helper(), chunk_size)
+                results = None
+                if not chunk_size:
+                    results = pool.imap_unordered(_processor_helper, 
+                                                  igen_helper())
+                else:
+                    results = pool.imap_unordered(_processor_helper, 
+                                                  igen_helper(), chunk_size)
                 
                 for key, value in results:
                     reducer(key, value)
