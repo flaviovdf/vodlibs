@@ -7,7 +7,7 @@ examples.
 
 from __future__ import division, print_function
 
-from vod.stats.ci import confidence_interval
+from vod.stats.ci import half_confidence_interval_size
 from vod.stats.ci import min_sample_size
 
 import unittest
@@ -28,7 +28,7 @@ class TestCI(unittest.TestCase):
     def test_confidence_interval(self):
         data = [8.0, 7.0, 5.0, 9.0, 9.5, 11.3, 5.2, 8.5]
         self.assertAlmostEqual(1.6772263663789651, 
-                               confidence_interval(data, 0.95), 5)
+                               half_confidence_interval_size(data, 0.95), 5)
     
     
         data = [8.0, 7.0, 5.0, 9.0, 9.5, 11.3, 5.2, 8.5, 
@@ -36,7 +36,7 @@ class TestCI(unittest.TestCase):
                 1.0, 2.0, 3.0, 4.0, 5.5, 8.2, 4.2, 4.5, 
                 7.2, 7.0, 1.2, 5.3, 8.5, 1.3, 5.3, 9.5]
         self.assertAlmostEqual(1.4173919794304153, 
-                               confidence_interval(data, 0.99), 5)
+                               half_confidence_interval_size(data, 0.99), 5)
 
 if __name__ == "__main__":
     unittest.main()

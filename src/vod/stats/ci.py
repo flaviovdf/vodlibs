@@ -31,7 +31,7 @@ def min_sample_size(data, confidence, err):
     n = ( (std * c) / (err * mean) )**2
     return n
     
-def confidence_interval(data, confidence):
+def half_confidence_interval_size(data, confidence):
     """
     Determines the half of the confidence interval size
     for some data. The confidence interval is mean +- return values.
