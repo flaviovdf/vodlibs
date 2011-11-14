@@ -54,6 +54,7 @@ def write_stats_to_file(data, fpath):
     '''
     
     with open(fpath, 'w') as data_file:
+        print('#n ', len(data), file=data_file)
         print('#mean ', np.mean(data), file=data_file)
         print('#median ', np.median(data), file=data_file)
         print('#std ', np.std(data), file=data_file)
