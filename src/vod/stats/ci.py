@@ -8,7 +8,7 @@ from scipy.stats import t, norm
 import math
 import numpy as np
 
-def min_sample_size(data, confidence, err):
+def min_sample_size(data, confidence, err, axis=None):
     """
     Determines the minimum (expected) sample size needed to have the confidence
     interval (mean(data) +- err*mean(data)).
@@ -19,9 +19,14 @@ def min_sample_size(data, confidence, err):
     """
     
     a = np.asanyarray(data)
-    n = len(a)
-    mean = np.mean(a) 
-    std = np.std(a)
+    
+    if axis is None:
+        n = a.size
+    else:
+        n = a.shape[axis]
+        
+    mean = np.mean(a, axis=axis) 
+    std = np.std(a, axis=axis)
     
     if n <= 30:
         c = t_table(n - 1, confidence)
@@ -31,7 +36,7 @@ def min_sample_size(data, confidence, err):
     n = ( (std * c) / (err * mean) )**2
     return n
     
-def half_confidence_interval_size(data, confidence):
+def half_confidence_interval_size(data, confidence, axis=None):
     """
     Determines the half of the confidence interval size
     for some data. The confidence interval is mean +- return values.
@@ -42,8 +47,12 @@ def half_confidence_interval_size(data, confidence):
     """
     
     a = np.asanyarray(data)
-    n = len(a)
-    std = np.std(a)
+    if axis is None:
+        n = a.size
+    else:
+        n = a.shape[axis]
+        
+    std = np.std(a, axis=axis)
     
     # calls the inverse CDF of the Student's t
     # distribution
