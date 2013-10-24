@@ -44,14 +44,14 @@ class TestGOF(unittest.TestCase):
         
     def test_example_three(self):
         '''Same as one but with non contiguous data'''
-        data = [9] * 2 +  [7] * 5 + [6] * 10 + [5] * 21 + \
+        data = [8] * 2 +  [7] * 5 + [6] * 10 + [5] * 21 + \
                [4] * 29 + [3] * 41 + [2] * 47 + [1] * 31 + [0] * 14
         
         random.shuffle(data)
         
         result = chisq_poisson(data)
-        self.assertAlmostEqual(6.69, result[0], 2)
-        self.assertAlmostEqual(0.57, result[1], 2)
+        self.assertAlmostEqual(2.28, result[0], 2)
+        self.assertAlmostEqual(0.94, result[1], 2)
 
 if __name__ == "__main__":
     unittest.main()

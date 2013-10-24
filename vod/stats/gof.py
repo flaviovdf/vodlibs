@@ -57,9 +57,13 @@ def chisq_poisson(data):
     #Add greater or equal last one
     geq_last = dist.sf(last_value) + dist.pmf(last_value)
     probabilites = np.append(probabilites, geq_last)
-    expected_freqs = total * probabilites
-    
+    sum_probs = probabilites.sum()
+
+    assert sum_probs <= 1.0 + 1e-8
+    assert sum_probs >= 1.0 - 1e-8
+ 
     #Now the arrays are matched (each index is the frequency of the same value)
+    expected_freqs = total * probabilites
     chisq = stats.chisquare(all_freqs, expected_freqs)[0]
     pval = stats.chisqprob(chisq, len(all_freqs) - 2)
     return chisq, pval

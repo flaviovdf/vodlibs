@@ -9,7 +9,7 @@ import sys
 
 from distutils.core import setup
 
-SOURCE = 'src/'
+SOURCE = os.path.dirname(os.path.realpath(__file__))
 os.chdir(SOURCE)
 
 if sys.version_info[:2] < (2, 7):
